@@ -1,7 +1,10 @@
-// import Background from './js/runtime/Background.js';
+import Frame from './js/runtime/Frame.js';
 
 export default class Main {
 	constructor () {
-		console.log(123);
+		this.init();
+	}
+	init () {
+		new Frame();
 	}
 }
