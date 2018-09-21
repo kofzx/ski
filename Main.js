@@ -1,4 +1,4 @@
-import Frame from './js/runtime/Frame.js';
+import Frame from './js/Frame.js';
 
 export default class Main {
 	constructor () {
