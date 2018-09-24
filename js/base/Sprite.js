@@ -2,7 +2,8 @@ import CanvasData from '../base/CanvasData.js';
 
 export default class Sprite {
 	constructor () {
-		let { ctx, width, height } = CanvasData.create();
+		let { canvas, ctx, width, height } = CanvasData.create();
+		this.canvas = canvas;
 		this.ctx = ctx;
 		this.width = width;
 		this.height = height;

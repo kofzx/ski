@@ -1,18 +1,17 @@
 export default class DataStore {
 	constructor () {
 		this.data = new Map();
-		this.instance = null;
 	}
 	static create () {
-		if (!this.instance) {
-			this.instance = new DataStore();
+		if (!DataStore.instance) {
+			DataStore.instance = new DataStore();
 		}
-		return this.instance;
+		return DataStore.instance;
 	}
 	add (key, value) {
 		this.data.set(key, value);
 	}
-	getValue (key) {
+	get (key) {
 		return this.data.get(key);
 	}
 }
