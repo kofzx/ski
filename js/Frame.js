@@ -1,6 +1,7 @@
 import DataStore from './base/DataStore.js';
 import Sprite from './base/Sprite.js';
 import Background from './runtime/Background.js';
+import BackgroundSprite from './runtime/BackgroundSprite.js';
 import Player from './actor/Player.js';
 import Bullet from './actor/Bullet.js';
 // util
@@ -25,6 +26,7 @@ export default class Frame extends Sprite {
 	init () {
 		this.registerEvent();	// 注册事件
 		this.background = new Background();
+		this.bkSprite = new BackgroundSprite();
 		this.player = new Player();
 		this.bullets = [];
 		this.bullets.push(new Bullet());
@@ -76,7 +78,6 @@ export default class Frame extends Sprite {
 				this.bullets.push(new Bullet());
 			}
 		});
-		// console.log(this.bullets);
 
 		this.clear();
 		this.render();
@@ -89,6 +90,7 @@ export default class Frame extends Sprite {
 	render () {
 		this.background.draw();
 		// 动态对象
+		this.bkSprite.render();
 		this.player.render();
 		this.bullets.forEach(value => value.render());
 	}

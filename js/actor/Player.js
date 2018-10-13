@@ -9,7 +9,9 @@ export default class Player extends Sprite {
 		this.dataStore = DataStore.create();
 	}
 	init () {
-		this.bkc = '#fdb939';		// 填充背景颜色
+		this.player = new Image();
+		this.player.src = '../../res/player.png';
+
 		this.playerWidth = 60;		// 玩家宽度
 		this.playerHeight = 90;		// 玩家高度
 		this.playerX = this.width / 2 - this.playerWidth / 2;		// 玩家起始x坐标
@@ -39,8 +41,7 @@ export default class Player extends Sprite {
  	 * 
 	*/
 	draw () {
-		this.ctx.fillStyle = this.bkc;
-		this.ctx.fillRect(this.playerX, this.playerY, this.playerWidth, this.playerHeight);
+		this.ctx.drawImage(this.player, this.playerX, this.playerY, this.playerWidth, this.playerHeight);
 	}
 	render () {
 		this.getBorder();	// 获取边框模型

@@ -3,7 +3,10 @@ import Sprite from '../base/Sprite.js';
 export default class Background extends Sprite  {
 	constructor () {
 		super();
-		this.bkc = '#04a4d9';		// 填充背景颜色
+		this.init();
+	}
+	init () {
+		this.bkc = '#0b7ef5';
 	}
 	draw () {
 		this.ctx.fillStyle = this.bkc;
