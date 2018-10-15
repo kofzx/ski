@@ -1,11 +1,11 @@
 import Obstacle from '../base/Obstacle.js';
 
-export default class Bullet extends Obstacle {
+export default class Coin extends Obstacle {
 	constructor () {
 		super();
 		this.init();
 	}
 	init () {
-		this.bkc = 'red';
+		this.bkc = 'gold';
 	}
 }

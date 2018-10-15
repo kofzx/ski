@@ -4,10 +4,14 @@ import Background from './runtime/Background.js';
 import BackgroundSprite from './runtime/BackgroundSprite.js';
 import Player from './actor/Player.js';
 import Bullet from './actor/Bullet.js';
+import Stone from './actor/Stone.js';
+import Coin from './actor/Coin.js';
 // util
-import Util from '../utils/util.js';
+import util from '../utils/util.js';
 
 const distance = 50;	// bullet越过人物之后的一段距离
+let coinsCount = 0; 	// 生成金币记录器，5个以后生成任意对象
+let generateAll = false;	// 是否生成所有
 
 export default class Frame extends Sprite {
 	constructor () {
@@ -28,8 +32,24 @@ export default class Frame extends Sprite {
 		this.background = new Background();
 		this.bkSprite = new BackgroundSprite();
 		this.player = new Player();
-		this.bullets = [];
-		this.bullets.push(new Bullet());
+
+		this.obstaclesExample = [Bullet, Stone];	// 障碍物标本
+		this.profitsExample = [Coin];	// 收益标本
+		this.allExample = this.profitsExample.concat(this.obstaclesExample);	// 所有标本
+
+		this.obstaclesExampleLen = this.obstaclesExample.length;	// 障碍物标本长度
+		this.profitsExampleLen = this.profitsExample.length;	// 收益标本长度
+		this.allExampleLen = this.allExample.length;	// 所有标本长度
+
+		this.obstacles = [];	// 障碍物集合
+		this.profits = [];		// 收益集合
+		this.all = [];			// 所有集合
+
+		this.profits.push(new this.profitsExample[0]());	// 初始默认Coin
+
+		// 时间变量
+		this.lastTime, this.deltaTime, this.now;
+		this.lastTime = Date.now();
 	}
 	// 注册事件
 	registerEvent () {
@@ -45,11 +65,28 @@ export default class Frame extends Sprite {
 	 *	碰撞检测
 	*/
 	checkStrike () {
-		// 障碍与人物的碰撞
-		this.bullets.forEach(value => {
-			let isStrike = Util.isStrike(this.player.border, value.border);
+		// 对象与人物的碰撞
+		this.all.forEach(value => {
+			let name = Object.getPrototypeOf(value).constructor.name;
+			let isStrike = util.isStrike(this.player.border, value.border);
 			if (isStrike) {
-				this.isGameOver = true;
+				if (name === 'Coin') {		// 金币则收集起来
+					this.all.shift();
+					// 新增一个Coin
+					this.all.push(new this.allExample[util.random(0, this.allExampleLen - 1)]());
+				} else {
+					this.isGameOver = true;
+				}
+			}
+		});
+		// 金币与人物的碰撞
+		this.profits.forEach(value => {
+			let isStrike = util.isStrike(this.player.border, value.border);
+			if (isStrike) {
+				this.profits.shift();
+				// 新增一个Coin
+				this.profits.push(new this.profitsExample[util.random(0, this.profitsExampleLen - 1)]());
+				coinsCount++;
 			}
 		});
 		// 人物与墙壁的碰撞
@@ -62,22 +99,56 @@ export default class Frame extends Sprite {
 	}
 	// 帧循环 （业务逻辑写在这）
 	update () {
+
+		// 时间变量
+		this.now = Date.now();
+		this.deltaTime = this.now - this.lastTime;
+		this.lastTime = this.now;
+
+		this.dataStore.add('deltaTime', this.deltaTime);
+
 		this.checkStrike();		// 碰撞检测
-		this.bullets.forEach(value => {
-			// 当bullet离开界面时，销毁对象
-			if (value.border.bottom > this.height) {
-				// console.log('shift');
-				this.bullets.shift();
-			}
-			// 当bullet越过人物的一段距离后，新增bullet对象
-			if (
-				value.border.top > this.player.border.bottom &&
-				value.border.bottom < this.height &&
-				this.bullets.length === 1
-			) {
-				this.bullets.push(new Bullet());
-			}
-		});
+		if (!generateAll) {
+			this.profits.forEach(value => {
+				// 当Coin离开界面时，销毁对象
+				if (value.border.bottom > this.height) {
+					this.profits.shift();
+				}
+				// 当Coin越过人物的一段距离后，新增Coin
+				if (
+					value.border.top > this.player.border.bottom &&
+					value.border.bottom < this.height &&
+					this.profits.length === 1
+				) {
+					if (coinsCount < 4) {
+						// 新增一个Coin
+						this.profits.push(new this.profitsExample[util.random(0, this.profitsExampleLen - 1)]());
+					} else {
+						generateAll = true;
+						// 新增一个随机对象
+						this.all.push(new this.allExample[util.random(0, this.allExampleLen - 1)]());
+					}
+					coinsCount++;
+				}
+			});
+		}
+		if (generateAll) {
+			this.all.forEach(value => {
+				// 当对象离开界面时，销毁对象
+				if (value.border.bottom > this.height) {
+					this.all.shift();
+				}
+				// 当对象越过人物的一段距离后，新增对象
+				if (
+					value.border.top > this.player.border.bottom &&
+					value.border.bottom < this.height &&
+					this.all.length === 1
+				) {
+					// 新增一个随机对象
+					this.all.push(new this.allExample[util.random(0, this.allExampleLen - 1)]());
+				}
+			});
+		}
 
 		this.clear();
 		this.render();
@@ -92,6 +163,7 @@ export default class Frame extends Sprite {
 		// 动态对象
 		this.bkSprite.render();
 		this.player.render();
-		this.bullets.forEach(value => value.render());
+		this.profits.forEach(value => value.render());
+		this.all.forEach(value => value.render());
 	}
 }

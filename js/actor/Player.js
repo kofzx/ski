@@ -1,6 +1,9 @@
 import DataStore from '../base/DataStore.js';
 import Sprite from '../base/Sprite.js';
 
+let speed = 2;
+const offsetLen = 4; // 偏移长度
+
 export default class Player extends Sprite {
 	constructor () {
 		super();
@@ -12,10 +15,17 @@ export default class Player extends Sprite {
 		this.player = new Image();
 		this.player.src = '../../res/player.png';
 
-		this.playerWidth = 60;		// 玩家宽度
-		this.playerHeight = 90;		// 玩家高度
+		this.playerWidth = 98;		// 玩家宽度
+		this.playerHeight = 112;		// 玩家高度
 		this.playerX = this.width / 2 - this.playerWidth / 2;		// 玩家起始x坐标
 		this.playerY = this.height / 2 + this.height / 2 / 3;		// 玩家起始y坐标
+
+		this.xArr = [61, 61 + 46, 61 + 46 * 2 - offsetLen, 61 + 46 * 3 - offsetLen, 61 + 46 * 3 + 82 - offsetLen];
+		this.yAxis = 60;
+
+		this.timer = 0;
+		this.no = 0;	// 第几张图片
+
 		this.border;	// 边框模型
 	}
 	// 获取边框模型
@@ -28,7 +38,17 @@ export default class Player extends Sprite {
 		}
 	}
 	update () {
-		let speed = 2;
+		// 控速
+		this.timer += this.dataStore.get('deltaTime');
+		if (this.timer > 100) {
+			// 精灵图动画
+			if (this.no >= this.xArr.length - 1) {
+				this.no = 0;
+			}
+			this.no++;
+			this.timer = 0;
+		}
+		// 操控指令
 		if (this.dataStore.get('start')) {
 			if (!this.dataStore.get('direction')) {
 				speed = -1 * speed;
@@ -41,7 +61,12 @@ export default class Player extends Sprite {
  	 * 
 	*/
 	draw () {
-		this.ctx.drawImage(this.player, this.playerX, this.playerY, this.playerWidth, this.playerHeight);
+		// 注： x2可以缩放为1/2
+		this.ctx.drawImage(
+			this.player,
+			this.xArr[this.no] + this.no * this.playerWidth * 2, this.yAxis, this.playerWidth * 2, this.playerHeight * 2,
+			this.playerX, this.playerY, this.playerWidth, this.playerHeight
+		);
 	}
 	render () {
 		this.getBorder();	// 获取边框模型

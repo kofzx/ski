@@ -12,13 +12,14 @@ export default class BackgroundSprite extends Sprite {
 		this.y = 0;
 	}
 	update () {
-		this.y -= this.speed;
+		this.y += this.speed;
 	}
 	draw () {
 		this.ctx.drawImage(
 			this.bkSprite, 
-			0, this.y, this.width, this.height,
-			0, 0, this.width, this.height);
+			0, 0, this.width, this.height,
+			0, 0, this.width, this.height
+		);
 	}
 	render () {
 		this.update();
