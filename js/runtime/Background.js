@@ -6,10 +6,10 @@ export default class Background extends Sprite  {
 		this.init();
 	}
 	init () {
-		this.bkc = '#0b7ef5';
+		this.bkg = new Image();
+		this.bkg.src = '../../res/bg.jpg';
 	}
 	draw () {
-		this.ctx.fillStyle = this.bkc;
-		this.ctx.fillRect(0, 0, this.width, this.height);
+		this.ctx.drawImage(this.bkg, 0, 0, this.width, this.height);
 	}
 }

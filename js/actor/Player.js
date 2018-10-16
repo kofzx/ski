@@ -1,19 +1,19 @@
 import DataStore from '../base/DataStore.js';
 import Sprite from '../base/Sprite.js';
 
-let speed = 2;
 const offsetLen = 4; // 偏移长度
 
 export default class Player extends Sprite {
 	constructor () {
 		super();
+		this.dataStore = DataStore.create();
 		this.init();
 		this.getBorder();	// 获取边框模型
-		this.dataStore = DataStore.create();
 	}
 	init () {
-		this.player = new Image();
-		this.player.src = '../../res/player.png';
+		console.log(this.dataStore.get('res'));
+		// this.player = new Image();
+		// this.player.src = '../../res/player.png';
 
 		this.playerWidth = 98;		// 玩家宽度
 		this.playerHeight = 112;		// 玩家高度
@@ -50,10 +50,7 @@ export default class Player extends Sprite {
 		}
 		// 操控指令
 		if (this.dataStore.get('start')) {
-			if (!this.dataStore.get('direction')) {
-				speed = -1 * speed;
-			}
-			this.playerX += speed;
+			this.playerX -= this.dataStore.get('playerSpeed');
 		}
 	}
 	/*

@@ -1,7 +1,7 @@
 import DataStore from './base/DataStore.js';
 import Sprite from './base/Sprite.js';
 import Background from './runtime/Background.js';
-import BackgroundSprite from './runtime/BackgroundSprite.js';
+import BkcRight from './runtime/BkcRight.js';
 import Player from './actor/Player.js';
 import Bullet from './actor/Bullet.js';
 import Stone from './actor/Stone.js';
@@ -9,16 +9,15 @@ import Coin from './actor/Coin.js';
 // util
 import util from '../utils/util.js';
 
-const distance = 50;	// bullet越过人物之后的一段距离
 let coinsCount = 0; 	// 生成金币记录器，5个以后生成任意对象
 let generateAll = false;	// 是否生成所有
 
 export default class Frame extends Sprite {
 	constructor () {
 		super();
-		this.init();
 		this.dataStore = DataStore.create();
 		this.isGameOver = false;	// 游戏是否结束
+		this.init();
 		// 帧循环
 		this.update();
 	}
@@ -30,7 +29,6 @@ export default class Frame extends Sprite {
 	init () {
 		this.registerEvent();	// 注册事件
 		this.background = new Background();
-		this.bkSprite = new BackgroundSprite();
 		this.player = new Player();
 
 		this.obstaclesExample = [Bullet, Stone];	// 障碍物标本
@@ -40,6 +38,12 @@ export default class Frame extends Sprite {
 		this.obstaclesExampleLen = this.obstaclesExample.length;	// 障碍物标本长度
 		this.profitsExampleLen = this.profitsExample.length;	// 收益标本长度
 		this.allExampleLen = this.allExample.length;	// 所有标本长度
+
+		// 背景系列
+		this.bkcRights = [
+			new BkcRight(this.dataStore.get('shoreTop')),
+			new BkcRight(this.dataStore.get('shoreTop') + this.dataStore.get('shoreHeight') / this.dataStore.get('shoreScale') + this.dataStore.get('shoreTop') + 5)
+		];
 
 		this.obstacles = [];	// 障碍物集合
 		this.profits = [];		// 收益集合
@@ -53,12 +57,12 @@ export default class Frame extends Sprite {
 	}
 	// 注册事件
 	registerEvent () {
-		let direction = false;		// 划水方向，初始向左
+		let playerSpeed = this.dataStore.get('pspeed');
 		this.canvas.addEventListener('touchstart', e => {
 			e.preventDefault();
-			direction = !direction;
 			this.dataStore.add('start', true);		// 初次点击，开始划水
-			this.dataStore.add('direction', direction);	// 划水方向
+			playerSpeed *= -1; 
+			this.dataStore.add('playerSpeed', playerSpeed);	// 划水方向
 		});
 	}
 	/**
@@ -68,6 +72,7 @@ export default class Frame extends Sprite {
 		// 对象与人物的碰撞
 		this.all.forEach(value => {
 			let name = Object.getPrototypeOf(value).constructor.name;
+			console.log(name);
 			let isStrike = util.isStrike(this.player.border, value.border);
 			if (isStrike) {
 				if (name === 'Coin') {		// 金币则收集起来
@@ -91,8 +96,8 @@ export default class Frame extends Sprite {
 		});
 		// 人物与墙壁的碰撞
 		if (
-			this.player.border.left <= 0 ||
-			this.player.border.right >= this.width
+			this.player.border.left <= 0 + this.dataStore.get('shoreWidth') / this.dataStore.get('shoreScale') - this.dataStore.get('shoreOffset') ||
+			this.player.border.right >= this.width - this.dataStore.get('shoreWidth') / this.dataStore.get('shoreScale') + this.dataStore.get('shoreOffset')
 		) {
 			this.isGameOver = true;
 		}
@@ -108,7 +113,24 @@ export default class Frame extends Sprite {
 		this.dataStore.add('deltaTime', this.deltaTime);
 
 		this.checkStrike();		// 碰撞检测
+
+		let lastRight = this.bkcRights[this.bkcRights.length - 1];	// 最后一个bkcRights
+		// 新增"岸边"规则
+		if (
+			lastRight.border.bottom >= this.height &&
+			this.bkcRights.length === 2
+		) {
+			this.bkcRights.unshift(new BkcRight(-this.dataStore.get('shoreHeight') / this.dataStore.get('shoreScale')));
+		}
+		// 当最后一个"岸边"离开界面时，销毁对象
+		if (
+			lastRight.border.top >= this.height &&
+			this.bkcRights.length === 3
+		) {
+			this.bkcRights.pop();
+		}
 		if (!generateAll) {
+			console.log('generateCoins');
 			this.profits.forEach(value => {
 				// 当Coin离开界面时，销毁对象
 				if (value.border.bottom > this.height) {
@@ -133,6 +155,7 @@ export default class Frame extends Sprite {
 			});
 		}
 		if (generateAll) {
+			console.log('generateAll');
 			this.all.forEach(value => {
 				// 当对象离开界面时，销毁对象
 				if (value.border.bottom > this.height) {
@@ -161,7 +184,7 @@ export default class Frame extends Sprite {
 	render () {
 		this.background.draw();
 		// 动态对象
-		this.bkSprite.render();
+		this.bkcRights.forEach(value => value.render());
 		this.player.render();
 		this.profits.forEach(value => value.render());
 		this.all.forEach(value => value.render());
