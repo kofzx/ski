@@ -1,5 +1,6 @@
 import Sprite from '../base/Sprite.js';
 import DataStore from '../base/DataStore.js';
+import OffCanvas from '../base/OffCanvas.js';
 
 const offset = 20;	// 固定偏移量（为了移走shore至屏幕外）
 
@@ -7,13 +8,13 @@ export default class BkcRight extends Sprite {
 	constructor (top) {
 		super();
 		this.dataStore = DataStore.create();
+		this.offCanvas = OffCanvas.create();
 		this.top = top;
 		this.init();
 		this.getBorder();
 	}
 	init () {
-		this.shore = new Image();
-		this.shore.src = '../../res/shore.png';
+		this.shore = this.dataStore.res.get('shore');
 
 		this.swidth = this.dataStore.get('shoreWidth');
 		this.sheight = this.dataStore.get('shoreHeight');
@@ -49,6 +50,27 @@ export default class BkcRight extends Sprite {
 		// 翻转回来
 		this.ctx.translate(this.width, 0);
 		this.ctx.scale(-1, 1);
+
+		/*
+ 		 * offCanvas
+		*/
+		this.offCanvas.ctx.drawImage(
+			this.shore,
+			0, 0, this.swidth * this.scale, this.sheight * this.scale,
+			this.sx, this.top, this.swidth, this.sheight
+		);
+		// 镜像翻转
+		this.offCanvas.ctx.translate(this.width, 0);
+		this.offCanvas.ctx.scale(-1, 1);
+		// 绘制对立面的
+		this.offCanvas.ctx.drawImage(
+			this.shore,
+			0, 0, this.swidth * this.scale, this.sheight * this.scale,
+			this.sx, this.top, this.swidth, this.sheight
+		);
+		// 翻转回来
+		this.offCanvas.ctx.translate(this.width, 0);
+		this.offCanvas.ctx.scale(-1, 1);
 	}
 	render () {
 		this.getBorder();

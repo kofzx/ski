@@ -10,16 +10,15 @@ const random = (min, max) => {
  * e.g. a = { top: x, right: x, bottom: x, left: x }
 */
 const isStrike = (a, b) => {
-	let flag = false;
 	if (
 		a.top <= b.bottom &&
 		a.bottom >= b.top &&
 		a.right >= b.left &&
 		a.left <= b.right
 	) {
-		flag = true;
+		return true;
 	}
-	return flag;
+	return false;
 }
 
 export default {

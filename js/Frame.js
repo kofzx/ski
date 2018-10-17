@@ -9,14 +9,10 @@ import Coin from './actor/Coin.js';
 // util
 import util from '../utils/util.js';
 
-let coinsCount = 0; 	// 生成金币记录器，5个以后生成任意对象
-let generateAll = false;	// 是否生成所有
-
 export default class Frame extends Sprite {
 	constructor () {
 		super();
 		this.dataStore = DataStore.create();
-		this.isGameOver = false;	// 游戏是否结束
 		this.init();
 		// 帧循环
 		this.update();
@@ -28,16 +24,12 @@ export default class Frame extends Sprite {
 	// 初始化
 	init () {
 		this.registerEvent();	// 注册事件
+
+		this.coinsCount = 0;	// 金币计数器（用于生成规则）
+		this.isGameOver = false;	// 游戏是否结束
+
 		this.background = new Background();
 		this.player = new Player();
-
-		this.obstaclesExample = [Bullet, Stone];	// 障碍物标本
-		this.profitsExample = [Coin];	// 收益标本
-		this.allExample = this.profitsExample.concat(this.obstaclesExample);	// 所有标本
-
-		this.obstaclesExampleLen = this.obstaclesExample.length;	// 障碍物标本长度
-		this.profitsExampleLen = this.profitsExample.length;	// 收益标本长度
-		this.allExampleLen = this.allExample.length;	// 所有标本长度
 
 		// 背景系列
 		this.bkcRights = [
@@ -45,11 +37,10 @@ export default class Frame extends Sprite {
 			new BkcRight(this.dataStore.get('shoreTop') + this.dataStore.get('shoreHeight') / this.dataStore.get('shoreScale') + this.dataStore.get('shoreTop') + 5)
 		];
 
-		this.obstacles = [];	// 障碍物集合
-		this.profits = [];		// 收益集合
-		this.all = [];			// 所有集合
+		this.objectsExample = [Coin, Bullet, Stone];	// 	所有对象标本
+		this.objects = [];		// 所有对象集合
 
-		this.profits.push(new this.profitsExample[0]());	// 初始默认Coin
+		this.objects.push(new this.objectsExample[0]());	// 初始默认Coin
 
 		// 时间变量
 		this.lastTime, this.deltaTime, this.now;
@@ -65,33 +56,34 @@ export default class Frame extends Sprite {
 			this.dataStore.add('playerSpeed', playerSpeed);	// 划水方向
 		});
 	}
+	/*
+	 * 生成规则
+	*/
+	generate () {
+		if (this.coinsCount < 4) {
+			// 新增一个Coin
+			this.objects.push(new this.objectsExample[0]());
+		} else {
+			// 新增一个随机对象
+			this.objects.push(new this.objectsExample[util.random(0, this.objectsExample.length - 1)]());
+		}
+	}
 	/**
 	 *	碰撞检测
 	*/
 	checkStrike () {
 		// 对象与人物的碰撞
-		this.all.forEach(value => {
-			let name = Object.getPrototypeOf(value).constructor.name;
-			console.log(name);
+		this.objects.forEach((value, index) => {
+			let name = Object.getPrototypeOf(value).constructor.name;	// 对象名称
 			let isStrike = util.isStrike(this.player.border, value.border);
 			if (isStrike) {
 				if (name === 'Coin') {		// 金币则收集起来
-					this.all.shift();
-					// 新增一个Coin
-					this.all.push(new this.allExample[util.random(0, this.allExampleLen - 1)]());
+					this.objects.splice(index, 1);
+					this.coinsCount++;
 				} else {
 					this.isGameOver = true;
 				}
-			}
-		});
-		// 金币与人物的碰撞
-		this.profits.forEach(value => {
-			let isStrike = util.isStrike(this.player.border, value.border);
-			if (isStrike) {
-				this.profits.shift();
-				// 新增一个Coin
-				this.profits.push(new this.profitsExample[util.random(0, this.profitsExampleLen - 1)]());
-				coinsCount++;
+				this.generate();
 			}
 		});
 		// 人物与墙壁的碰撞
@@ -102,9 +94,8 @@ export default class Frame extends Sprite {
 			this.isGameOver = true;
 		}
 	}
-	// 帧循环 （业务逻辑写在这）
+	// 帧循环
 	update () {
-
 		// 时间变量
 		this.now = Date.now();
 		this.deltaTime = this.now - this.lastTime;
@@ -129,49 +120,23 @@ export default class Frame extends Sprite {
 		) {
 			this.bkcRights.pop();
 		}
-		if (!generateAll) {
-			console.log('generateCoins');
-			this.profits.forEach(value => {
-				// 当Coin离开界面时，销毁对象
-				if (value.border.bottom > this.height) {
-					this.profits.shift();
-				}
-				// 当Coin越过人物的一段距离后，新增Coin
-				if (
-					value.border.top > this.player.border.bottom &&
-					value.border.bottom < this.height &&
-					this.profits.length === 1
-				) {
-					if (coinsCount < 4) {
-						// 新增一个Coin
-						this.profits.push(new this.profitsExample[util.random(0, this.profitsExampleLen - 1)]());
-					} else {
-						generateAll = true;
-						// 新增一个随机对象
-						this.all.push(new this.allExample[util.random(0, this.allExampleLen - 1)]());
-					}
-					coinsCount++;
-				}
-			});
-		}
-		if (generateAll) {
-			console.log('generateAll');
-			this.all.forEach(value => {
-				// 当对象离开界面时，销毁对象
-				if (value.border.bottom > this.height) {
-					this.all.shift();
-				}
-				// 当对象越过人物的一段距离后，新增对象
-				if (
-					value.border.top > this.player.border.bottom &&
-					value.border.bottom < this.height &&
-					this.all.length === 1
-				) {
-					// 新增一个随机对象
-					this.all.push(new this.allExample[util.random(0, this.allExampleLen - 1)]());
-				}
-			});
-		}
+
+		this.objects.forEach((value, index) => {
+			let name = Object.getPrototypeOf(value).constructor.name;	// 对象名称
+			// 当对象离开界面时，销毁对象
+			if (value.border.bottom > this.height) {
+				this.objects.splice(index, 1);
+			}
+			// 当对象越过人物的一段距离后，新增对象
+			if (
+				value.border.top > this.player.border.bottom &&
+				value.border.bottom < this.height &&
+				this.objects.length === 1
+			) {
+				if (name === 'Coin') this.coinsCount++;
+				this.generate();
+			}
+		});
 
 		this.clear();
 		this.render();
@@ -185,8 +150,7 @@ export default class Frame extends Sprite {
 		this.background.draw();
 		// 动态对象
 		this.bkcRights.forEach(value => value.render());
+		this.objects.forEach(value => value.render());
 		this.player.render();
-		this.profits.forEach(value => value.render());
-		this.all.forEach(value => value.render());
 	}
 }

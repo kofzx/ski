@@ -1,4 +1,4 @@
-import CanvasData from '../base/CanvasData.js';
+import CanvasData from './CanvasData.js';
 
 export default class Sprite {
 	constructor () {

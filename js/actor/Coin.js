@@ -11,8 +11,7 @@ export default class Coin extends Sprite {
 		this.getBorder();
 	}
 	init () {
-		this.img = new Image();
-		this.img.src = '../../res/coin.png';
+		this.img = this.dataStore.res.get('coin');
 
 		this.scale = 1.2;
 		this.owidth = this.img.width / this.scale;

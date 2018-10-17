@@ -11,9 +11,8 @@ export default class Player extends Sprite {
 		this.getBorder();	// 获取边框模型
 	}
 	init () {
-		console.log(this.dataStore.get('res'));
-		// this.player = new Image();
-		// this.player.src = '../../res/player.png';
+		console.log();
+		this.player = this.dataStore.res.get('player');
 
 		this.playerWidth = 98;		// 玩家宽度
 		this.playerHeight = 112;		// 玩家高度

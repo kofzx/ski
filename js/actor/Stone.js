@@ -11,8 +11,7 @@ export default class Stone extends Sprite {
 		this.getBorder();
 	}
 	init () {
-		this.img = new Image();
-		this.img.src = '../../res/boom.png';
+		this.img = this.dataStore.res.get('boom');
 
 		this.scale = 1.7;
 		this.owidth = this.img.width / this.scale;
@@ -39,9 +38,6 @@ export default class Stone extends Sprite {
 	}
 	draw () {
 		this.ctx.drawImage(this.img, this.ox, this.oy, this.owidth, this.oheight);
-		// console.log('Stone: ' + this.owidth + ' ' + this.oheight);
-		// this.ctx.fillStyle = 'red';
-		// this.ctx.fillRect(this.ox, this.oy, this.owidth, this.oheight);
 	}
 	render () {
 		this.getBorder();
