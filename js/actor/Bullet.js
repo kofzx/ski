@@ -1,4 +1,5 @@
 import Sprite from '../base/Sprite.js';
+import OffCanvas from '../base/OffCanvas.js';
 import DataStore from '../base/DataStore.js';
 // util
 import util from '../../utils/util.js';
@@ -7,6 +8,7 @@ export default class Bullet extends Sprite {
 	constructor () {
 		super();
 		this.dataStore = DataStore.create();
+		this.offCanvas = OffCanvas.create();
 		this.init();
 		this.getBorder();
 	}
@@ -29,7 +31,9 @@ export default class Bullet extends Sprite {
 			top: this.oy,
 			right: this.ox + this.owidth,
 			bottom: this.oy + this.oheight,
-			left: this.ox
+			left: this.ox,
+			width: this.owidth,
+			height: this.oheight
 		}
 	}
 	// 更新数据
@@ -38,6 +42,7 @@ export default class Bullet extends Sprite {
 	}
 	draw () {
 		this.ctx.drawImage(this.img, this.ox, this.oy, this.owidth, this.oheight);
+		this.offCanvas.ctx.drawImage(this.img, this.ox, this.oy, this.owidth, this.oheight);
 	}
 	render () {
 		this.getBorder();

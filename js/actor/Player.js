@@ -1,5 +1,6 @@
 import DataStore from '../base/DataStore.js';
 import Sprite from '../base/Sprite.js';
+import OffCanvas from '../base/OffCanvas.js';
 
 const offsetLen = 4; // 偏移长度
 
@@ -7,11 +8,11 @@ export default class Player extends Sprite {
 	constructor () {
 		super();
 		this.dataStore = DataStore.create();
+		this.offCanvas = OffCanvas.create();
 		this.init();
 		this.getBorder();	// 获取边框模型
 	}
 	init () {
-		console.log();
 		this.player = this.dataStore.res.get('player');
 
 		this.playerWidth = 98;		// 玩家宽度
@@ -33,7 +34,9 @@ export default class Player extends Sprite {
 			top: this.playerY,
 			right: this.playerX + this.playerWidth,
 			bottom: this.playerY + this.playerHeight,
-			left: this.playerX
+			left: this.playerX,
+			width: this.playerWidth,
+			height: this.playerHeight
 		}
 	}
 	update () {
@@ -59,6 +62,12 @@ export default class Player extends Sprite {
 	draw () {
 		// 注： x2可以缩放为1/2
 		this.ctx.drawImage(
+			this.player,
+			this.xArr[this.no] + this.no * this.playerWidth * 2, this.yAxis, this.playerWidth * 2, this.playerHeight * 2,
+			this.playerX, this.playerY, this.playerWidth, this.playerHeight
+		);
+
+		this.offCanvas.ctx.drawImage(
 			this.player,
 			this.xArr[this.no] + this.no * this.playerWidth * 2, this.yAxis, this.playerWidth * 2, this.playerHeight * 2,
 			this.playerX, this.playerY, this.playerWidth, this.playerHeight

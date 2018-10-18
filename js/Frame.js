@@ -1,5 +1,6 @@
 import DataStore from './base/DataStore.js';
 import Sprite from './base/Sprite.js';
+import OffCanvas from './base/OffCanvas.js';
 import Background from './runtime/Background.js';
 import BkcRight from './runtime/BkcRight.js';
 import Player from './actor/Player.js';
@@ -13,6 +14,7 @@ export default class Frame extends Sprite {
 	constructor () {
 		super();
 		this.dataStore = DataStore.create();
+		this.offCanvas = OffCanvas.create();
 		this.init();
 		// 帧循环
 		this.update();
@@ -20,6 +22,7 @@ export default class Frame extends Sprite {
 	// 清空画布
 	clear () {
 		this.ctx.clearRect(0, 0, this.width, this.height);
+		this.offCanvas.ctx.clearRect(0, 0, this.width, this.height);
 	}
 	// 初始化
 	init () {
@@ -37,7 +40,7 @@ export default class Frame extends Sprite {
 			new BkcRight(this.dataStore.get('shoreTop') + this.dataStore.get('shoreHeight') / this.dataStore.get('shoreScale') + this.dataStore.get('shoreTop') + 5)
 		];
 
-		this.objectsExample = [Coin, Bullet, Stone];	// 	所有对象标本
+		this.objectsExample = [Coin, Stone];	// 	所有对象标本
 		this.objects = [];		// 所有对象集合
 
 		this.objects.push(new this.objectsExample[0]());	// 初始默认Coin
@@ -50,6 +53,12 @@ export default class Frame extends Sprite {
 	registerEvent () {
 		let playerSpeed = this.dataStore.get('pspeed');
 		this.canvas.addEventListener('touchstart', e => {
+			e.preventDefault();
+			this.dataStore.add('start', true);		// 初次点击，开始划水
+			playerSpeed *= -1; 
+			this.dataStore.add('playerSpeed', playerSpeed);	// 划水方向
+		});
+		document.getElementById('offCanvas').addEventListener('touchstart', e => {
 			e.preventDefault();
 			this.dataStore.add('start', true);		// 初次点击，开始划水
 			playerSpeed *= -1; 
@@ -68,6 +77,18 @@ export default class Frame extends Sprite {
 			this.objects.push(new this.objectsExample[util.random(0, this.objectsExample.length - 1)]());
 		}
 	}
+	handleEgdeCollisions (rect) {
+		let imgData1 = this.offCanvas.ctx.getImageData(rect.left, rect.top, rect.width, rect.height).data;
+
+		for(let i = 3, len = imgData1.length; i < len; i += 4) {
+			console.log(imgData1[i]);
+		    if(imgData1[i] > 0) {
+		      console.log('撞了');
+		      return true;
+		    }
+		}
+		return false;
+	}
 	/**
 	 *	碰撞检测
 	*/
@@ -75,13 +96,15 @@ export default class Frame extends Sprite {
 		// 对象与人物的碰撞
 		this.objects.forEach((value, index) => {
 			let name = Object.getPrototypeOf(value).constructor.name;	// 对象名称
-			let isStrike = util.isStrike(this.player.border, value.border);
+			let isStrike = util.detectIntersection(this.player.border, value.border);
 			if (isStrike) {
 				if (name === 'Coin') {		// 金币则收集起来
 					this.objects.splice(index, 1);
 					this.coinsCount++;
 				} else {
-					this.isGameOver = true;
+					// this.isGameOver = true;
+					let rectBox = util.getIntersectionRect(this.player.border, value.border);
+					if (this.handleEgdeCollisions(rectBox)) this.isGameOver = true;
 				}
 				this.generate();
 			}

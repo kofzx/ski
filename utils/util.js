@@ -21,7 +21,39 @@ const isStrike = (a, b) => {
 	return false;
 }
 
+const detectIntersection = (a, b) => {
+	let bCenterX = b.left + b.width/2,
+	    bCenterY = b.top + b.height/2,
+	    aCenterX = a.left + a.width/2,
+	    aCenterY = a.top + a.height/2;
+
+    if(
+    	(Math.abs(bCenterX - aCenterX) < a.width / 2 + b.width / 2) &&
+        Math.abs(bCenterY - aCenterY) < a.height / 2 + b.height / 2
+    ) {
+      return true
+    } else {
+      return false
+    }
+}
+
+const getIntersectionRect = (a, b) => {
+	let maxTop = Math.max(a.top, b.top),
+		minRight = Math.min(a.right, b.right),
+		minBottom = Math.min(a.bottom, b.bottom),
+		maxLeft = Math.max(a.left, b.left);
+
+	return {
+		top: maxTop,
+		left: maxLeft,
+		width: minRight - maxLeft,
+		height: minBottom - maxTop,
+	};
+}
+
 export default {
 	random,
-	isStrike
+	isStrike,
+	getIntersectionRect,
+	detectIntersection
 }

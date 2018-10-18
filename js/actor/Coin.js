@@ -29,7 +29,9 @@ export default class Coin extends Sprite {
 			top: this.oy,
 			right: this.ox + this.owidth,
 			bottom: this.oy + this.oheight,
-			left: this.ox
+			left: this.ox,
+			width: this.owidth,
+			height: this.oheight
 		}
 	}
 	// 更新数据
