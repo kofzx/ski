@@ -15,11 +15,12 @@ export default class Main {
 	init () {
 		this.dataStore.add('speed', 4.5);		// 速度常量
 		this.dataStore.add('pspeed', 2);	// 人物初始速度常量
+		this.dataStore.add('scoreStep', 10);	// 分数步长
 		// shore
 		this.dataStore
-			.add('shoreOffset', 20)
+			.add('shoreOffset', 25)
 			.add('shoreTop', 30)
-			.add('shoreScale', 1.7)
+			.add('shoreScale', 1.65)
 			.add('shoreWidth', 120)
 			.add('shoreHeight', 500);
 		new Frame();

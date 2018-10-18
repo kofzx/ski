@@ -2,8 +2,10 @@ export default class CanvasData {
 	constructor () {
 		this.canvas = document.getElementById('canvas');
 		this.ctx = this.canvas.getContext('2d');
-		this.width = this.canvas.width;
-		this.height = this.canvas.height;
+		this.width = window.innerWidth;
+		this.height = window.innerHeight;
+		this.canvas.width = this.width;
+		this.canvas.height = this.height;
 		this.instance = null;
 	}
 	static create () {

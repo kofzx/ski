@@ -43,6 +43,7 @@ export default class Stone extends Sprite {
 	draw () {
 		this.ctx.drawImage(this.img, this.ox, this.oy, this.owidth, this.oheight);
 		this.offCanvas.ctx.drawImage(this.img, this.ox, this.oy, this.owidth, this.oheight);
+		this.offCanvas.ctx.globalCompositeOperation = 'source-over';
 	}
 	render () {
 		this.getBorder();

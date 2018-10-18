@@ -2,6 +2,7 @@ const resources = [
 	['bg', '../../res/bg.jpg'],
 	['boom', '../../res/boom.png'],
 	['coin', '../../res/coin.png'],
+	['nb', '../../res/nb.png'],
 	['player', '../../res/player.png'],
 	['shore', '../../res/shore.png']
 ];

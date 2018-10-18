@@ -3,6 +3,7 @@ import Sprite from '../base/Sprite.js';
 import OffCanvas from '../base/OffCanvas.js';
 
 const offsetLen = 4; // 偏移长度
+let alpha = 1;
 
 export default class Player extends Sprite {
 	constructor () {
@@ -54,12 +55,22 @@ export default class Player extends Sprite {
 		if (this.dataStore.get('start')) {
 			this.playerX -= this.dataStore.get('playerSpeed');
 		}
+		// gameover
+		if (this.dataStore.get('isGameOver')) {
+			this.ctx.save();
+			console.log(this.ctx.globalAlpha);
+			if (alpha < 0) {
+				alpha = 0;
+			}
+			alpha -= 0.1;
+		}
 	}
 	/*
  	 * 绘制人物
  	 * 
 	*/
 	draw () {
+		this.ctx.globalAlpha = alpha;
 		// 注： x2可以缩放为1/2
 		this.ctx.drawImage(
 			this.player,
@@ -72,6 +83,8 @@ export default class Player extends Sprite {
 			this.xArr[this.no] + this.no * this.playerWidth * 2, this.yAxis, this.playerWidth * 2, this.playerHeight * 2,
 			this.playerX, this.playerY, this.playerWidth, this.playerHeight
 		);
+		this.ctx.restore();
+		this.offCanvas.ctx.globalCompositeOperation = 'destination-in';
 	}
 	render () {
 		this.getBorder();	// 获取边框模型

@@ -21,6 +21,9 @@ const isStrike = (a, b) => {
 	return false;
 }
 
+/*
+ * 另一种碰撞检测方法
+*/
 const detectIntersection = (a, b) => {
 	let bCenterX = b.left + b.width/2,
 	    bCenterY = b.top + b.height/2,
@@ -31,12 +34,16 @@ const detectIntersection = (a, b) => {
     	(Math.abs(bCenterX - aCenterX) < a.width / 2 + b.width / 2) &&
         Math.abs(bCenterY - aCenterY) < a.height / 2 + b.height / 2
     ) {
-      return true
+      return true;
     } else {
-      return false
+      return false;
     }
 }
 
+/*
+ * 获取碰撞交叉的矩形区域
+ * 下一步即可通过getImageData获取透明度信息
+*/
 const getIntersectionRect = (a, b) => {
 	let maxTop = Math.max(a.top, b.top),
 		minRight = Math.min(a.right, b.right),
@@ -47,7 +54,7 @@ const getIntersectionRect = (a, b) => {
 		top: maxTop,
 		left: maxLeft,
 		width: minRight - maxLeft,
-		height: minBottom - maxTop,
+		height: minBottom - maxTop
 	};
 }
 

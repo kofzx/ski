@@ -2,9 +2,10 @@ import DataStore from './base/DataStore.js';
 import Sprite from './base/Sprite.js';
 import OffCanvas from './base/OffCanvas.js';
 import Background from './runtime/Background.js';
+import Score from './runtime/Score.js';
 import BkcRight from './runtime/BkcRight.js';
 import Player from './actor/Player.js';
-import Bullet from './actor/Bullet.js';
+// import Bullet from './actor/Bullet.js';
 import Stone from './actor/Stone.js';
 import Coin from './actor/Coin.js';
 // util
@@ -32,6 +33,7 @@ export default class Frame extends Sprite {
 		this.isGameOver = false;	// 游戏是否结束
 
 		this.background = new Background();
+		this.score = new Score();
 		this.player = new Player();
 
 		// 背景系列
@@ -81,7 +83,6 @@ export default class Frame extends Sprite {
 		let imgData1 = this.offCanvas.ctx.getImageData(rect.left, rect.top, rect.width, rect.height).data;
 
 		for(let i = 3, len = imgData1.length; i < len; i += 4) {
-			console.log(imgData1[i]);
 		    if(imgData1[i] > 0) {
 		      console.log('撞了');
 		      return true;
@@ -96,15 +97,19 @@ export default class Frame extends Sprite {
 		// 对象与人物的碰撞
 		this.objects.forEach((value, index) => {
 			let name = Object.getPrototypeOf(value).constructor.name;	// 对象名称
-			let isStrike = util.detectIntersection(this.player.border, value.border);
+			let isStrike = util.isStrike(this.player.border, value.border);
 			if (isStrike) {
 				if (name === 'Coin') {		// 金币则收集起来
 					this.objects.splice(index, 1);
+					this.score.scoreNum += this.dataStore.get('scoreStep');
 					this.coinsCount++;
 				} else {
-					// this.isGameOver = true;
 					let rectBox = util.getIntersectionRect(this.player.border, value.border);
-					if (this.handleEgdeCollisions(rectBox)) this.isGameOver = true;
+					if (this.handleEgdeCollisions(rectBox)) {
+						this.isGameOver = true;
+						this.dataStore.add('isGameOver', this.isGameOver);
+					} 
+					return;
 				}
 				this.generate();
 			}
@@ -115,6 +120,7 @@ export default class Frame extends Sprite {
 			this.player.border.right >= this.width - this.dataStore.get('shoreWidth') / this.dataStore.get('shoreScale') + this.dataStore.get('shoreOffset')
 		) {
 			this.isGameOver = true;
+			this.dataStore.add('isGameOver', this.isGameOver);
 		}
 	}
 	// 帧循环
@@ -165,15 +171,19 @@ export default class Frame extends Sprite {
 		this.render();
 		let timer = window.requestAnimationFrame(() => this.update());
 		if (this.isGameOver) {	// 结束游戏
-			window.cancelAnimationFrame(timer);
+			setTimeout(() => {
+				window.cancelAnimationFrame(timer);
+			}, 1000);
 		}
 	}
 	// 渲染层
 	render () {
 		this.background.draw();
 		// 动态对象
+		this.player.render();
 		this.bkcRights.forEach(value => value.render());
 		this.objects.forEach(value => value.render());
-		this.player.render();
+		// 计分器
+		this.score.draw();
 	}
 }
