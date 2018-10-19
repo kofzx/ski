@@ -1,20 +1,26 @@
 import DataStore from '../base/DataStore.js';
 import Sprite from '../base/Sprite.js';
 import OffCanvas from '../base/OffCanvas.js';
+import PlayerCanvas from '../base/PlayerCanvas.js';
 
 const offsetLen = 4; // 偏移长度
-let alpha = 1;
+const shineTimes = 3; // 闪烁次数
+const angleStep = 6; // 角度步长
 
 export default class Player extends Sprite {
 	constructor () {
 		super();
 		this.dataStore = DataStore.create();
 		this.offCanvas = OffCanvas.create();
+		this.playerCanvas = PlayerCanvas.create();
 		this.init();
 		this.getBorder();	// 获取边框模型
 	}
 	init () {
 		this.player = this.dataStore.res.get('player');
+
+		this.angle = 90;
+		this.shineCount = 0;	// 闪烁计数器
 
 		this.playerWidth = 98;		// 玩家宽度
 		this.playerHeight = 112;		// 玩家高度
@@ -43,26 +49,33 @@ export default class Player extends Sprite {
 	update () {
 		// 控速
 		this.timer += this.dataStore.get('deltaTime');
-		if (this.timer > 100) {
-			// 精灵图动画
-			if (this.no >= this.xArr.length - 1) {
-				this.no = 0;
+		if (!this.dataStore.get('isGameOver')) {
+			if (this.timer > 100) {
+				// 精灵图动画
+				if (this.no >= this.xArr.length - 1) {
+					this.no = 0;
+				}
+				this.no++;
+				this.timer = 0;
 			}
-			this.no++;
-			this.timer = 0;
-		}
-		// 操控指令
-		if (this.dataStore.get('start')) {
-			this.playerX -= this.dataStore.get('playerSpeed');
+			// 操控指令
+			if (this.dataStore.get('start')) {
+				this.playerX -= this.dataStore.get('playerSpeed');
+			}
 		}
 		// gameover
 		if (this.dataStore.get('isGameOver')) {
-			this.ctx.save();
-			console.log(this.ctx.globalAlpha);
-			if (alpha < 0) {
-				alpha = 0;
+			if (this.shineCount >= shineTimes) {
+				clearInterval(this.dataStore.get('playerTimer'));
+				// 清空数据
+				this.dataStore.destroy();
+				document.getElementById('restart').style.display = 'block';
 			}
-			alpha -= 0.1;
+			if (this.angle < 0) {
+				this.angle = 90;
+				this.shineCount++;
+			} 
+			this.angle -= angleStep;
 		}
 	}
 	/*
@@ -70,9 +83,10 @@ export default class Player extends Sprite {
  	 * 
 	*/
 	draw () {
-		this.ctx.globalAlpha = alpha;
+		this.playerCanvas.ctx.save();
+		this.playerCanvas.ctx.globalAlpha = Math.sin(this.angle * (2 * Math.PI / 360));
 		// 注： x2可以缩放为1/2
-		this.ctx.drawImage(
+		this.playerCanvas.ctx.drawImage(
 			this.player,
 			this.xArr[this.no] + this.no * this.playerWidth * 2, this.yAxis, this.playerWidth * 2, this.playerHeight * 2,
 			this.playerX, this.playerY, this.playerWidth, this.playerHeight

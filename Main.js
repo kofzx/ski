@@ -11,6 +11,7 @@ export default class Main {
 			// 图片资源加载完，才进行初始化，才进行帧循环
 			this.init();
 		});
+		this.restartEvent();
 	}
 	init () {
 		this.dataStore.add('speed', 4.5);		// 速度常量
@@ -24,5 +25,12 @@ export default class Main {
 			.add('shoreWidth', 120)
 			.add('shoreHeight', 500);
 		new Frame();
+	}
+	restartEvent () {
+		let self = this;
+		document.getElementById('restart').onclick = function() {
+			this.style.display = 'none';
+			self.init();
+		};
 	}
 }

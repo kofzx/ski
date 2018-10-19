@@ -18,4 +18,7 @@ export default class DataStore {
 	get (key) {
 		return this.data.get(key);
 	}
+	destroy () {
+		this.data.clear();
+	}
 }

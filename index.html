@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-	<title>let's play skiing</title>
+	<title>let's play boating</title>
 	<style type="text/css">
 		* {
 			margin: 0;
@@ -14,13 +14,25 @@
 			height: 100%;
 			overflow: hidden;
 		}
-		#canvas {
-			/*display: none;*/
+		#restart {
+			width: 100px;
+			height: 50px;
+			position: absolute;
+			top: 50%; left: 50%;
+			transform: translate3d(-50%, -50%, 0);
+			z-index: 2;
+			display: none;
+		}
+		#playerCanvas {
+			position: absolute;
+			top: 0;
+			left: 0;
 		}
 	</style>
 </head>
 <body>
-	<canvas id="canvas"></canvas>
+	<canvas id="canvas">您的浏览器暂不支持canvas，请更换或升级您的浏览器！</canvas>
+	<button id="restart">restart</button>
 	<script type="module" src="./game.js"></script>
 </body>
 </html>

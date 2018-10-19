@@ -1,6 +1,7 @@
 import DataStore from './base/DataStore.js';
 import Sprite from './base/Sprite.js';
 import OffCanvas from './base/OffCanvas.js';
+import PlayerCanvas from './base/PlayerCanvas.js';
 import Background from './runtime/Background.js';
 import Score from './runtime/Score.js';
 import BkcRight from './runtime/BkcRight.js';
@@ -16,6 +17,7 @@ export default class Frame extends Sprite {
 		super();
 		this.dataStore = DataStore.create();
 		this.offCanvas = OffCanvas.create();
+		this.playerCanvas = PlayerCanvas.create();
 		this.init();
 		// 帧循环
 		this.update();
@@ -23,6 +25,7 @@ export default class Frame extends Sprite {
 	// 清空画布
 	clear () {
 		this.ctx.clearRect(0, 0, this.width, this.height);
+		this.playerCanvas.ctx.clearRect(0, 0, this.width, this.height);
 		this.offCanvas.ctx.clearRect(0, 0, this.width, this.height);
 	}
 	// 初始化
@@ -54,13 +57,8 @@ export default class Frame extends Sprite {
 	// 注册事件
 	registerEvent () {
 		let playerSpeed = this.dataStore.get('pspeed');
-		this.canvas.addEventListener('touchstart', e => {
-			e.preventDefault();
-			this.dataStore.add('start', true);		// 初次点击，开始划水
-			playerSpeed *= -1; 
-			this.dataStore.add('playerSpeed', playerSpeed);	// 划水方向
-		});
-		document.getElementById('offCanvas').addEventListener('touchstart', e => {
+		// playerCanvas为离屏canvas
+		document.getElementById('playerCanvas').addEventListener('touchstart', e => {
 			e.preventDefault();
 			this.dataStore.add('start', true);		// 初次点击，开始划水
 			playerSpeed *= -1; 
@@ -79,12 +77,13 @@ export default class Frame extends Sprite {
 			this.objects.push(new this.objectsExample[util.random(0, this.objectsExample.length - 1)]());
 		}
 	}
+	/*
+  	 * 像素级碰撞检测
+	*/
 	handleEgdeCollisions (rect) {
 		let imgData1 = this.offCanvas.ctx.getImageData(rect.left, rect.top, rect.width, rect.height).data;
-
 		for(let i = 3, len = imgData1.length; i < len; i += 4) {
 		    if(imgData1[i] > 0) {
-		      console.log('撞了');
 		      return true;
 		    }
 		}
@@ -171,9 +170,12 @@ export default class Frame extends Sprite {
 		this.render();
 		let timer = window.requestAnimationFrame(() => this.update());
 		if (this.isGameOver) {	// 结束游戏
-			setTimeout(() => {
-				window.cancelAnimationFrame(timer);
-			}, 1000);
+			window.cancelAnimationFrame(timer);
+			let playerTimer = setInterval(() => {
+				this.playerCanvas.ctx.clearRect(0, 0, this.width, this.height);
+				this.player.render();
+			}, 1000 / 60);
+			this.dataStore.add('playerTimer', playerTimer);
 		}
 	}
 	// 渲染层
