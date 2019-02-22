@@ -1,10 +1,10 @@
 const resources = [
-	['bg', '../../res/bg.jpg'],
-	['boom', '../../res/boom.png'],
-	['coin', '../../res/coin.png'],
-	['nb', '../../res/nb.png'],
-	['player', '../../res/player.png'],
-	['shore', '../../res/shore.png']
+	['bg', 'https://github.com/kofzx/ski/blob/master/res/bg.jpg'],
+	['boom', 'https://github.com/kofzx/ski/blob/master/res/boom.png'],
+	['coin', 'https://github.com/kofzx/ski/blob/master/res/coin.png'],
+	['nb', 'https://github.com/kofzx/ski/blob/master/res/nb.png'],
+	['player', 'https://github.com/kofzx/ski/blob/master/res/player.png'],
+	['shore', 'https://github.com/kofzx/ski/blob/master/res/shore.png']
 ];
 
 export default class ResourceLoader {
